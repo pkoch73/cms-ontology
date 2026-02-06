@@ -1,0 +1,29 @@
+{
+  "name": "cms-ontology",
+  "version": "1.0.0",
+  "description": "Enterprise Content Ontology for DA.live + Claude Cowork",
+  "type": "module",
+  "main": "tools/crawl-da-inventory.js",
+  "scripts": {
+    "crawl": "node tools/crawl-da-inventory.js",
+    "analyze": "node tools/analyze-content.js",
+    "query": "node tools/query-ontology.js"
+  },
+  "keywords": [
+    "content-ontology",
+    "da.live",
+    "adobe",
+    "edge-delivery-services",
+    "cloudflare-d1",
+    "claude",
+    "cowork"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0"
+  }
+}

@@ -4,6 +4,83 @@ A solution for building an internal knowledge graph of your existing DA-authored
 
 ---
 
+## The Strategic Vision
+
+### The Problem with AI-Generated Content
+
+**AI can generate anything. The question is whether it generates something worth your time.**
+
+Without enterprise context, AI produces generic content that:
+- Doesn't match your brand voice
+- Uses wrong terminology
+- Ignores existing content relationships
+- Creates redundant or conflicting pages
+- Misses your audience segments
+
+### The Enterprise Content Moat
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                     ENTERPRISE CONTENT LIFECYCLE                                │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  ┌──────────────────┐                                                           │
+│  │ ENTERPRISE       │  ◄── STICKY, ADOBE OWNS                                   │
+│  │ CONTEXT          │      Your ontology, brand, terminology,                   │
+│  │ (This Solution)  │      content relationships, performance data              │
+│  └────────┬─────────┘                                                           │
+│           │                                                                     │
+│           ▼                                                                     │
+│  ┌──────────────────┐                                                           │
+│  │ AI GENERATION    │  ◄── COMMODITY, BUT CONSTRAINED                           │
+│  │ (Claude/GPT)     │      Context transforms generic AI into                   │
+│  │                  │      80% first drafts, not garbage                        │
+│  └────────┬─────────┘                                                           │
+│           │                                                                     │
+│           ▼                                                                     │
+│  ┌──────────────────┐                                                           │
+│  │ VISUAL           │  ◄── HUMANS IN AEM/DA                                     │
+│  │ REFINEMENT       │      Collaborative editing, governance,                   │
+│  │ (DA / AEM)       │      brand polish → 80% becomes 100%                      │
+│  └────────┬─────────┘                                                           │
+│           │                                                                     │
+│           ▼                                                                     │
+│  ┌──────────────────┐                                                           │
+│  │ PUBLISH          │  ◄── EDGE DELIVERY SERVICES                               │
+│  │ (EDS)            │      Fast, global, optimized                              │
+│  └────────┬─────────┘                                                           │
+│           │                                                                     │
+│           ▼                                                                     │
+│  ┌──────────────────┐                                                           │
+│  │ MEASURE          │  ◄── FEEDS BACK TO CONTEXT                                │
+│  │ (Analytics)      │      Performance data enriches ontology,                  │
+│  └────────┬─────────┘      improves future generation                           │
+│           │                                                                     │
+│           └──────────────────────────────────────────────────────────┐          │
+│                                                                      │          │
+│  ┌──────────────────┐                                                │          │
+│  │ ENTERPRISE       │ ◄──────────────────────────────────────────────┘          │
+│  │ CONTEXT          │  Loop closes: measurement feeds context                   │
+│  │ (Enriched)       │  Context improves AI generation                           │
+│  └──────────────────┘  AI quality improves over time                            │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### The Value Proposition
+
+| Layer | Who Owns It | Why It Matters |
+|-------|-------------|----------------|
+| **Enterprise Context** | Adobe (sticky) | Unique to each customer. Years of content, relationships, performance data. Cannot be replicated. |
+| **AI Generation** | Commodity | Any LLM can generate text. The differentiator is what you feed it. |
+| **Visual Refinement** | AEM/DA + Humans | Where 80% becomes 100%. Collaborative, governed, brand-compliant. |
+| **Publish** | EDS | Commodity infrastructure, but Adobe's is fast. |
+| **Measure** | Analytics | The feedback loop that makes context smarter over time. |
+
+**The pitch:** Enterprise Context is the difference between an 80% first draft and garbage. AEM/DA is where you and your team make it 100%—visually, collaboratively, with full governance.
+
+---
+
 ## Overview
 
 ### The Goal
@@ -11,8 +88,9 @@ A solution for building an internal knowledge graph of your existing DA-authored
 1. **Understand what you already have** - topics, entities, relationships across 100-1000 pages
 2. **Identify gaps and opportunities** - missing funnel stages, underserved audiences
 3. **Feed structured context to AI** - generate new content consistent with existing inventory
+4. **Close the loop** - measure performance, enrich context, improve future generation
 
-### Architecture
+### Technical Architecture
 
 ```
 ┌─────────────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
@@ -870,10 +948,643 @@ Set up a Cloudflare Worker or cron job to:
 
 ---
 
+---
+
+## Step 7: Close the Loop - Measurement Feedback
+
+The Enterprise Context layer becomes more valuable over time by ingesting performance data. This creates a flywheel: better context → better AI output → better content → better performance → richer context.
+
+### Extended Schema for Performance Data
+
+```sql
+-- performance.sql
+-- Extend the schema to capture content performance
+
+-- Page performance metrics (updated regularly from analytics)
+CREATE TABLE IF NOT EXISTS page_performance (
+  page_path TEXT REFERENCES pages(path) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  pageviews INTEGER DEFAULT 0,
+  unique_visitors INTEGER DEFAULT 0,
+  avg_time_on_page REAL DEFAULT 0,
+  bounce_rate REAL DEFAULT 0,
+  scroll_depth REAL DEFAULT 0,
+  conversions INTEGER DEFAULT 0,
+  conversion_rate REAL DEFAULT 0,
+  PRIMARY KEY (page_path, date)
+);
+
+-- Content quality signals
+CREATE TABLE IF NOT EXISTS page_quality_signals (
+  page_path TEXT PRIMARY KEY REFERENCES pages(path) ON DELETE CASCADE,
+  readability_score REAL,           -- Flesch-Kincaid or similar
+  seo_score REAL,                   -- Lighthouse/similar
+  accessibility_score REAL,         -- WCAG compliance
+  brand_voice_score REAL,           -- AI-assessed brand alignment
+  freshness_score REAL,             -- Based on last update vs topic velocity
+  internal_link_score REAL,         -- Based on link graph analysis
+  last_assessed DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- A/B test results (if applicable)
+CREATE TABLE IF NOT EXISTS content_experiments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  page_path TEXT REFERENCES pages(path),
+  variant_name TEXT,
+  hypothesis TEXT,
+  start_date DATE,
+  end_date DATE,
+  winner BOOLEAN DEFAULT FALSE,
+  lift_percentage REAL,
+  confidence REAL,
+  learnings TEXT
+);
+
+-- Content lifecycle tracking
+CREATE TABLE IF NOT EXISTS page_lifecycle (
+  page_path TEXT PRIMARY KEY REFERENCES pages(path) ON DELETE CASCADE,
+  created_date DATE,
+  last_major_update DATE,
+  review_due_date DATE,
+  status TEXT DEFAULT 'active',  -- active, needs_review, deprecated, archived
+  ai_generated BOOLEAN DEFAULT FALSE,
+  human_edited BOOLEAN DEFAULT TRUE,
+  editorial_notes TEXT
+);
+
+-- Topic performance aggregates (materialized view concept)
+CREATE TABLE IF NOT EXISTS topic_performance (
+  topic TEXT PRIMARY KEY,
+  total_pages INTEGER,
+  avg_pageviews REAL,
+  avg_conversion_rate REAL,
+  top_performing_path TEXT,
+  underperforming_paths TEXT,  -- JSON array
+  last_calculated DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for performance queries
+CREATE INDEX IF NOT EXISTS idx_perf_date ON page_performance(date);
+CREATE INDEX IF NOT EXISTS idx_perf_conversions ON page_performance(conversions);
+CREATE INDEX IF NOT EXISTS idx_lifecycle_status ON page_lifecycle(status);
+CREATE INDEX IF NOT EXISTS idx_lifecycle_review ON page_lifecycle(review_due_date);
+```
+
+### Ingest Analytics Data
+
+```javascript
+// tools/ingest-analytics.js
+
+/**
+ * Ingest analytics data from various sources
+ * Supports: Adobe Analytics, Google Analytics, RUM data
+ */
+
+async function ingestAnalyticsData(db, analyticsSource, dateRange) {
+  let data;
+
+  switch (analyticsSource.type) {
+    case 'adobe-analytics':
+      data = await fetchAdobeAnalytics(analyticsSource.config, dateRange);
+      break;
+    case 'google-analytics':
+      data = await fetchGoogleAnalytics(analyticsSource.config, dateRange);
+      break;
+    case 'rum':
+      // Edge Delivery Services Real User Monitoring
+      data = await fetchRUMData(analyticsSource.config, dateRange);
+      break;
+  }
+
+  for (const row of data) {
+    await db.prepare(`
+      INSERT OR REPLACE INTO page_performance
+      (page_path, date, pageviews, unique_visitors, avg_time_on_page,
+       bounce_rate, scroll_depth, conversions, conversion_rate)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      row.path,
+      row.date,
+      row.pageviews,
+      row.uniqueVisitors,
+      row.avgTimeOnPage,
+      row.bounceRate,
+      row.scrollDepth,
+      row.conversions,
+      row.conversionRate
+    ).run();
+  }
+
+  // Recalculate topic aggregates
+  await recalculateTopicPerformance(db);
+}
+
+/**
+ * Fetch RUM data from Edge Delivery Services
+ * See: https://www.aem.live/developer/rum
+ */
+async function fetchRUMData(config, dateRange) {
+  const { domainKey, domain } = config;
+
+  const response = await fetch(
+    `https://rum.fastly-aem.page/bundles/${domainKey}?` +
+    `domain=${domain}&startdate=${dateRange.start}&enddate=${dateRange.end}`
+  );
+
+  const bundles = await response.json();
+
+  // Transform RUM bundles to performance metrics
+  return transformRUMBundles(bundles);
+}
+
+/**
+ * Recalculate topic-level performance metrics
+ */
+async function recalculateTopicPerformance(db) {
+  const topics = await db.prepare(`
+    SELECT DISTINCT topic FROM page_topics WHERE is_primary = TRUE
+  `).all();
+
+  for (const { topic } of topics.results) {
+    const metrics = await db.prepare(`
+      SELECT
+        COUNT(DISTINCT p.path) as total_pages,
+        AVG(perf.pageviews) as avg_pageviews,
+        AVG(perf.conversion_rate) as avg_conversion_rate,
+        (SELECT p2.path FROM pages p2
+         JOIN page_topics pt2 ON p2.path = pt2.page_path
+         JOIN page_performance perf2 ON p2.path = perf2.page_path
+         WHERE pt2.topic = ? AND pt2.is_primary = TRUE
+         ORDER BY perf2.pageviews DESC LIMIT 1) as top_path
+      FROM pages p
+      JOIN page_topics pt ON p.path = pt.page_path
+      LEFT JOIN page_performance perf ON p.path = perf.page_path
+      WHERE pt.topic = ? AND pt.is_primary = TRUE
+    `).bind(topic, topic).first();
+
+    await db.prepare(`
+      INSERT OR REPLACE INTO topic_performance
+      (topic, total_pages, avg_pageviews, avg_conversion_rate,
+       top_performing_path, last_calculated)
+      VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    `).bind(
+      topic,
+      metrics.total_pages,
+      metrics.avg_pageviews,
+      metrics.avg_conversion_rate,
+      metrics.top_path
+    ).run();
+  }
+}
+
+export { ingestAnalyticsData };
+```
+
+### Performance-Informed Content Generation
+
+Now the AI generation step can leverage performance data:
+
+```javascript
+// tools/generate-content-with-performance.js
+
+/**
+ * Generate content brief with performance insights
+ * This is the "Enterprise Context" advantage
+ */
+async function generatePerformanceInformedBrief(db, topic, targetFunnelStage, targetAudience) {
+
+  // Get standard context (existing content, entities, etc.)
+  const existingContent = await db.prepare(`
+    SELECT p.path, p.title, p.summary, p.funnel_stage, p.content_type
+    FROM pages p
+    JOIN page_topics pt ON p.path = pt.page_path
+    WHERE pt.topic LIKE ?
+    ORDER BY pt.is_primary DESC
+    LIMIT 15
+  `).bind(`%${topic}%`).all();
+
+  // NEW: Get performance context
+  const topPerformers = await db.prepare(`
+    SELECT
+      p.path, p.title, p.summary,
+      AVG(perf.pageviews) as avg_views,
+      AVG(perf.conversion_rate) as avg_conversion,
+      AVG(perf.avg_time_on_page) as avg_engagement
+    FROM pages p
+    JOIN page_topics pt ON p.path = pt.page_path
+    JOIN page_performance perf ON p.path = perf.page_path
+    WHERE pt.topic LIKE ?
+    GROUP BY p.path
+    ORDER BY avg_conversion DESC, avg_views DESC
+    LIMIT 5
+  `).bind(`%${topic}%`).all();
+
+  const underperformers = await db.prepare(`
+    SELECT
+      p.path, p.title,
+      AVG(perf.bounce_rate) as avg_bounce,
+      AVG(perf.conversion_rate) as avg_conversion
+    FROM pages p
+    JOIN page_topics pt ON p.path = pt.page_path
+    JOIN page_performance perf ON p.path = perf.page_path
+    WHERE pt.topic LIKE ?
+    GROUP BY p.path
+    HAVING avg_bounce > 0.7 OR avg_conversion < 0.01
+    LIMIT 5
+  `).bind(`%${topic}%`).all();
+
+  // NEW: Get quality signals
+  const qualityBenchmarks = await db.prepare(`
+    SELECT
+      AVG(qs.readability_score) as avg_readability,
+      AVG(qs.seo_score) as avg_seo,
+      AVG(qs.brand_voice_score) as avg_brand_voice
+    FROM page_quality_signals qs
+    JOIN page_topics pt ON qs.page_path = pt.page_path
+    WHERE pt.topic LIKE ?
+  `).bind(`%${topic}%`).first();
+
+  // NEW: Get learnings from experiments
+  const experimentLearnings = await db.prepare(`
+    SELECT hypothesis, learnings, lift_percentage
+    FROM content_experiments
+    WHERE page_path IN (
+      SELECT page_path FROM page_topics WHERE topic LIKE ?
+    )
+    AND winner = TRUE
+    ORDER BY lift_percentage DESC
+    LIMIT 5
+  `).bind(`%${topic}%`).all();
+
+  // Get entities and blocks (as before)
+  const relatedEntities = await db.prepare(`
+    SELECT DISTINCT e.name, e.type
+    FROM entities e
+    JOIN page_entities pe ON e.id = pe.entity_id
+    JOIN page_topics pt ON pe.page_path = pt.page_path
+    WHERE pt.topic LIKE ?
+  `).bind(`%${topic}%`).all();
+
+  const blocksUsed = await db.prepare(`
+    SELECT pb.block_name, COUNT(*) as usage_count
+    FROM page_blocks pb
+    JOIN pages p ON pb.page_path = p.path
+    JOIN page_topics pt ON p.path = pt.page_path
+    WHERE pt.topic LIKE ?
+    GROUP BY pb.block_name
+    ORDER BY usage_count DESC
+    LIMIT 10
+  `).bind(`%${topic}%`).all();
+
+  // Generate brief with FULL enterprise context
+  const brief = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 4000,
+    messages: [{
+      role: 'user',
+      content: `Create a detailed content brief for a new page, informed by our enterprise content intelligence.
+
+## EXISTING CONTENT ON "${topic}"
+${existingContent.results.map(p =>
+  `- **${p.title}** (${p.funnel_stage}): ${p.summary}`
+).join('\n')}
+
+## PERFORMANCE INSIGHTS (What's Working)
+
+### Top Performers
+${topPerformers.results.map(p =>
+  `- **${p.title}**
+   - Avg views: ${Math.round(p.avg_views)}/day
+   - Conversion rate: ${(p.avg_conversion * 100).toFixed(2)}%
+   - Engagement: ${Math.round(p.avg_engagement)}s avg time
+   - Summary: ${p.summary}`
+).join('\n\n')}
+
+### Underperformers (What to Avoid)
+${underperformers.results.map(p =>
+  `- ${p.title}: ${(p.avg_bounce * 100).toFixed(0)}% bounce, ${(p.avg_conversion * 100).toFixed(2)}% conversion`
+).join('\n')}
+
+### Quality Benchmarks for This Topic
+- Average readability score: ${qualityBenchmarks?.avg_readability?.toFixed(1) || 'N/A'}
+- Average SEO score: ${qualityBenchmarks?.avg_seo?.toFixed(1) || 'N/A'}
+- Average brand voice alignment: ${qualityBenchmarks?.avg_brand_voice?.toFixed(1) || 'N/A'}
+
+### Proven Experiment Learnings
+${experimentLearnings.results.length > 0
+  ? experimentLearnings.results.map(e =>
+      `- **${e.hypothesis}**: ${e.learnings} (+${e.lift_percentage}% lift)`
+    ).join('\n')
+  : 'No experiment data yet.'}
+
+## ENTITIES/TERMINOLOGY WE USE
+${relatedEntities.results.map(e => `- ${e.name} (${e.type})`).join('\n')}
+
+## BLOCKS COMMONLY USED
+${blocksUsed.results.map(b => `- ${b.block_name}: ${b.usage_count} pages`).join('\n')}
+
+## TARGET FOR NEW CONTENT
+- **Topic:** ${topic}
+- **Funnel Stage:** ${targetFunnelStage}
+- **Target Audience:** ${targetAudience}
+
+---
+
+Generate a comprehensive content brief that:
+
+1. **Learns from top performers** - Incorporate elements that drive high engagement and conversion
+2. **Avoids underperformer patterns** - Don't repeat what's not working
+3. **Meets quality benchmarks** - Target readability/SEO/brand scores at or above topic average
+4. **Applies experiment learnings** - Use proven optimization insights
+5. **Uses correct terminology** - Reference entities consistently
+6. **Leverages proven blocks** - Suggest block patterns that work for this topic
+
+Include:
+- Recommended title (SEO-optimized based on what performs)
+- Key messages (aligned with high-converting content)
+- Detailed outline with block suggestions
+- Internal links to high-performing related content
+- Specific quality targets to hit
+- A/B test hypotheses to validate`
+    }]
+  });
+
+  return brief.content[0].text;
+}
+
+export { generatePerformanceInformedBrief };
+```
+
+### Content Lifecycle Management
+
+```javascript
+// tools/content-lifecycle.js
+
+/**
+ * Identify content that needs attention based on performance + freshness
+ */
+async function getContentNeedingReview(db) {
+
+  // Underperforming content
+  const underperforming = await db.prepare(`
+    SELECT
+      p.path, p.title, p.primary_topic,
+      AVG(perf.conversion_rate) as conversion_rate,
+      AVG(perf.bounce_rate) as bounce_rate,
+      lc.last_major_update
+    FROM pages p
+    JOIN page_performance perf ON p.path = perf.page_path
+    LEFT JOIN page_lifecycle lc ON p.path = lc.page_path
+    WHERE perf.date > date('now', '-30 days')
+    GROUP BY p.path
+    HAVING bounce_rate > 0.7 OR conversion_rate < 0.005
+    ORDER BY conversion_rate ASC
+    LIMIT 20
+  `).all();
+
+  // Stale content (not updated in 6+ months, but still getting traffic)
+  const stale = await db.prepare(`
+    SELECT
+      p.path, p.title,
+      lc.last_major_update,
+      AVG(perf.pageviews) as recent_views
+    FROM pages p
+    JOIN page_lifecycle lc ON p.path = lc.page_path
+    JOIN page_performance perf ON p.path = perf.page_path
+    WHERE lc.last_major_update < date('now', '-180 days')
+      AND perf.date > date('now', '-30 days')
+    GROUP BY p.path
+    HAVING recent_views > 100
+    ORDER BY recent_views DESC
+  `).all();
+
+  // Content gaps (topics with poor funnel coverage)
+  const gaps = await db.prepare(`
+    SELECT
+      primary_topic,
+      SUM(CASE WHEN funnel_stage = 'awareness' THEN 1 ELSE 0 END) as awareness,
+      SUM(CASE WHEN funnel_stage = 'consideration' THEN 1 ELSE 0 END) as consideration,
+      SUM(CASE WHEN funnel_stage = 'decision' THEN 1 ELSE 0 END) as decision,
+      tp.avg_conversion_rate
+    FROM pages p
+    LEFT JOIN topic_performance tp ON p.primary_topic = tp.topic
+    GROUP BY primary_topic
+    HAVING awareness = 0 OR consideration = 0 OR decision = 0
+    ORDER BY tp.avg_conversion_rate DESC
+  `).all();
+
+  return {
+    underperforming: underperforming.results,
+    stale: stale.results,
+    contentGaps: gaps.results
+  };
+}
+
+/**
+ * Generate AI-powered refresh recommendations
+ */
+async function generateRefreshRecommendations(db, pagePath) {
+  const page = await db.prepare(`
+    SELECT p.*, lc.last_major_update, lc.editorial_notes
+    FROM pages p
+    LEFT JOIN page_lifecycle lc ON p.path = lc.page_path
+    WHERE p.path = ?
+  `).bind(pagePath).first();
+
+  const performance = await db.prepare(`
+    SELECT * FROM page_performance
+    WHERE page_path = ?
+    ORDER BY date DESC
+    LIMIT 30
+  `).bind(pagePath).all();
+
+  const topPerformerInTopic = await db.prepare(`
+    SELECT p.path, p.title, p.summary
+    FROM pages p
+    JOIN page_topics pt ON p.path = pt.page_path
+    JOIN page_performance perf ON p.path = perf.page_path
+    WHERE pt.topic = ? AND p.path != ?
+    GROUP BY p.path
+    ORDER BY AVG(perf.conversion_rate) DESC
+    LIMIT 1
+  `).bind(page.primary_topic, pagePath).first();
+
+  const recommendations = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 2000,
+    messages: [{
+      role: 'user',
+      content: `Analyze this underperforming content and recommend specific improvements.
+
+## PAGE DETAILS
+- Path: ${page.path}
+- Title: ${page.title}
+- Topic: ${page.primary_topic}
+- Funnel Stage: ${page.funnel_stage}
+- Last Updated: ${page.last_major_update || 'Unknown'}
+- Summary: ${page.summary}
+
+## RECENT PERFORMANCE (Last 30 days)
+- Avg pageviews/day: ${average(performance.results, 'pageviews')}
+- Avg bounce rate: ${(average(performance.results, 'bounce_rate') * 100).toFixed(1)}%
+- Avg conversion rate: ${(average(performance.results, 'conversion_rate') * 100).toFixed(2)}%
+- Avg time on page: ${average(performance.results, 'avg_time_on_page').toFixed(0)}s
+
+## TOP PERFORMER IN SAME TOPIC (For Reference)
+${topPerformerInTopic
+  ? `- ${topPerformerInTopic.title}\n- Summary: ${topPerformerInTopic.summary}`
+  : 'No comparison available'}
+
+Provide specific, actionable recommendations:
+1. What's likely causing the poor performance?
+2. What structural changes would help?
+3. What content additions/removals?
+4. What A/B tests should we run?
+5. Priority order for changes`
+    }]
+  });
+
+  return recommendations.content[0].text;
+}
+
+function average(arr, field) {
+  if (!arr.length) return 0;
+  return arr.reduce((sum, item) => sum + (item[field] || 0), 0) / arr.length;
+}
+
+export { getContentNeedingReview, generateRefreshRecommendations };
+```
+
+---
+
+## Complete Lifecycle Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                      ENTERPRISE CONTENT LIFECYCLE                               │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  ╔═══════════════════════════════════════════════════════════════════════════╗  │
+│  ║  ENTERPRISE CONTEXT (Adobe Owns - Sticky)                                 ║  │
+│  ║  ┌─────────────────────────────────────────────────────────────────────┐  ║  │
+│  ║  │  Content Inventory  │  Performance Data  │  Quality Signals        │  ║  │
+│  ║  │  - Topics           │  - Pageviews       │  - Brand voice score    │  ║  │
+│  ║  │  - Entities         │  - Conversions     │  - Readability          │  ║  │
+│  ║  │  - Audiences        │  - Engagement      │  - SEO score            │  ║  │
+│  ║  │  - Relationships    │  - A/B results     │  - Freshness            │  ║  │
+│  ║  └─────────────────────────────────────────────────────────────────────┘  ║  │
+│  ╚═══════════════════════════════════════════════════════════════════════════╝  │
+│                                       │                                         │
+│                                       ▼                                         │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │  AI GENERATION (Commodity - But Constrained by Context)                   │  │
+│  │                                                                           │  │
+│  │  Context transforms:  "Write about X"  ──▶  "Write about X using our     │  │
+│  │                                              terminology, matching our    │  │
+│  │                                              top performers, avoiding     │  │
+│  │                                              patterns that don't convert" │  │
+│  │                                                                           │  │
+│  │  Output: 80% first draft (not garbage)                                    │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│                                       │                                         │
+│                                       ▼                                         │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │  VISUAL REFINEMENT (Humans in DA/AEM)                                     │  │
+│  │                                                                           │  │
+│  │  - Collaborative editing                                                  │  │
+│  │  - Block-based visual composition                                         │  │
+│  │  - Brand governance & approval workflows                                  │  │
+│  │  - Human judgment & creativity                                            │  │
+│  │                                                                           │  │
+│  │  Output: 100% publish-ready content                                       │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│                                       │                                         │
+│                                       ▼                                         │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │  PUBLISH (Edge Delivery Services)                                         │  │
+│  │                                                                           │  │
+│  │  - Sub-second delivery globally                                           │  │
+│  │  - Perfect Lighthouse scores                                              │  │
+│  │  - Real User Monitoring (RUM) data collection                             │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│                                       │                                         │
+│                                       ▼                                         │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │  MEASURE (Analytics + RUM)                                                │  │
+│  │                                                                           │  │
+│  │  - Page performance metrics                                               │  │
+│  │  - Conversion tracking                                                    │  │
+│  │  - Engagement signals                                                     │  │
+│  │  - A/B test results                                                       │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│                                       │                                         │
+│                                       │                                         │
+│           ┌───────────────────────────┘                                         │
+│           │                                                                     │
+│           │   FEEDBACK LOOP                                                     │
+│           │   - Performance data enriches ontology                              │
+│           │   - Learnings inform future generation                              │
+│           │   - Context gets smarter over time                                  │
+│           │   - AI output quality improves continuously                         │
+│           │                                                                     │
+│           └──────────────────────────▶ Back to ENTERPRISE CONTEXT               │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Why This Matters
+
+### Without Enterprise Context
+```
+User: "Write a blog post about cloud security"
+
+AI: [Generic content that could be from any company]
+    - Wrong terminology
+    - No awareness of existing content
+    - May conflict with other pages
+    - No conversion optimization
+    - Requires 80% rewrite
+
+Result: Garbage that wastes everyone's time
+```
+
+### With Enterprise Context
+```
+User: "Write a blog post about cloud security"
+
+AI: [Informed by your ontology + performance data]
+    - Uses your product names and terminology
+    - Fills identified content gap (consideration stage)
+    - Links to your top-performing related content
+    - Uses block patterns that convert
+    - Applies learnings from past experiments
+    - Matches your brand voice score targets
+
+Result: 80% first draft ready for human polish in DA/AEM
+```
+
+### The Competitive Moat
+
+| Aspect | Commodity AI | Enterprise Context + AI |
+|--------|--------------|-------------------------|
+| Content quality | 20% usable | 80% usable |
+| Brand consistency | Random | Enforced |
+| Terminology | Generic | Your vocabulary |
+| Performance | Hope-based | Data-informed |
+| Improvement | None | Continuous via feedback loop |
+| Switching cost | Zero | High (years of data) |
+
+**This is why Enterprise Context is sticky and defensible.** It takes years to build a rich ontology with performance history. That data makes your AI output dramatically better than competitors using generic AI.
+
+---
+
 ## Resources
 
 - **DA Admin API:** https://opensource.adobe.com/da-admin/
 - **DA Documentation:** https://docs.da.live/
 - **DA GitHub:** https://github.com/adobe/da-live
+- **EDS RUM:** https://www.aem.live/developer/rum
 - **Cloudflare D1:** https://developers.cloudflare.com/d1/
 - **Claude API:** https://docs.anthropic.com/
