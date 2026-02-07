@@ -5,6 +5,137 @@
  * Provides endpoints for querying content inventory, gaps, and generating briefs.
  */
 
+// Cowork Plugin Manifest - served at /manifest.json
+const MANIFEST = {
+  "name": "enterprise-content-ontology",
+  "display_name": "Enterprise Content Ontology",
+  "description": "AI-powered content intelligence for Adobe Edge Delivery Services. Query your content inventory, identify gaps, and generate context-aware content briefs.",
+  "version": "2.0.0",
+  "author": "WKND",
+  "homepage": "https://github.com/pkoch73/cms-ontology",
+  "icon": "https://www.hlx.live/developer/block-collection/icons/document.svg",
+  "capabilities": {
+    "tools": true,
+    "context": true
+  },
+  "tools": [
+    {
+      "name": "query_content_inventory",
+      "description": "Search and query the content inventory. Find pages by topic, content type, funnel stage, or audience. Returns structured metadata about matching pages.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "site_id": { "type": "string", "description": "Filter by site ID (e.g., 'wknd'). Optional - omit to query all sites." },
+          "topic": { "type": "string", "description": "Filter by primary topic (e.g., 'surfing', 'skiing', 'cycling')" },
+          "content_type": { "type": "string", "enum": ["adventure", "article", "landing", "listing", "support"], "description": "Filter by content type" },
+          "funnel_stage": { "type": "string", "enum": ["awareness", "consideration", "decision"], "description": "Filter by marketing funnel stage" },
+          "audience": { "type": "string", "description": "Filter by target audience segment" },
+          "search": { "type": "string", "description": "Free text search in page paths and titles" },
+          "limit": { "type": "integer", "default": 20, "description": "Maximum number of results to return" }
+        }
+      }
+    },
+    {
+      "name": "get_content_gaps",
+      "description": "Identify content gaps in the inventory. Shows topics missing content at specific funnel stages, helping prioritize content creation.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "topic": { "type": "string", "description": "Analyze gaps for a specific topic, or leave empty for all topics" },
+          "funnel_stage": { "type": "string", "enum": ["awareness", "consideration", "decision"], "description": "Find topics missing this specific funnel stage" }
+        }
+      }
+    },
+    {
+      "name": "generate_content_brief",
+      "description": "Generate an AI-powered content brief based on the ontology context. Uses existing content patterns, brand voice, and gap analysis to create actionable briefs.",
+      "parameters": {
+        "type": "object",
+        "required": ["topic", "content_type"],
+        "properties": {
+          "topic": { "type": "string", "description": "The primary topic for the new content" },
+          "content_type": { "type": "string", "enum": ["adventure", "article", "landing", "listing", "support"], "description": "The type of content to create" },
+          "funnel_stage": { "type": "string", "enum": ["awareness", "consideration", "decision"], "description": "Target funnel stage for the content" },
+          "target_audience": { "type": "string", "description": "Primary audience for the content" }
+        }
+      }
+    },
+    {
+      "name": "get_brand_context",
+      "description": "Get brand context and content patterns from the ontology. Returns information about brand voice, common topics, content structure patterns, and terminology.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "aspect": { "type": "string", "enum": ["topics", "audiences", "entities", "content_types", "all"], "default": "all", "description": "Which aspect of brand context to retrieve" }
+        }
+      }
+    },
+    {
+      "name": "get_related_content",
+      "description": "Find content related to a specific page or topic. Useful for internal linking, content clusters, and understanding content relationships.",
+      "parameters": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string", "description": "The page path to find related content for" },
+          "relationship": { "type": "string", "enum": ["same_topic", "same_audience", "same_funnel_stage", "all"], "default": "all", "description": "Type of relationship to find" }
+        }
+      }
+    },
+    {
+      "name": "get_performance_insights",
+      "description": "Get performance insights from RUM analytics. Shows top performers, underperformers, and patterns to inform content strategy.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "metric": { "type": "string", "enum": ["overall", "performance", "engagement", "conversion"], "default": "overall", "description": "Which metric to rank by" }
+        }
+      }
+    },
+    {
+      "name": "get_page_performance",
+      "description": "Get detailed performance data for a specific page. Shows Core Web Vitals, engagement metrics, and optimization recommendations.",
+      "parameters": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string", "description": "The page path to get performance data for" }
+        }
+      }
+    },
+    {
+      "name": "list_sites",
+      "description": "List all sites in the content ontology. Shows site name, domain, page count, and topic count for each site.",
+      "parameters": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "get_site_details",
+      "description": "Get detailed information about a specific site including stats and configuration.",
+      "parameters": {
+        "type": "object",
+        "required": ["site_id"],
+        "properties": {
+          "site_id": { "type": "string", "description": "The site identifier" }
+        }
+      }
+    }
+  ],
+  "context_providers": [
+    {
+      "name": "content_summary",
+      "description": "Provides a summary of the content inventory for context",
+      "auto_include": true
+    }
+  ],
+  "api": {
+    "base_url": "https://content-ontology.philipp-koch.workers.dev",
+    "auth": {
+      "type": "bearer",
+      "env_var": "CONTENT_ONTOLOGY_API_KEY"
+    }
+  }
+};
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -68,6 +199,11 @@ export default {
         case '/health':
           result = { status: 'ok', timestamp: new Date().toISOString() };
           break;
+        case '/manifest.json':
+          // Serve the Cowork plugin manifest directly
+          return new Response(JSON.stringify(MANIFEST), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
         default:
           return new Response(JSON.stringify({ error: 'Not found' }), {
             status: 404,
