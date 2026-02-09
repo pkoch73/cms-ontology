@@ -196,6 +196,9 @@ export default {
         case '/api/sites':
           result = await handleSites(request, env);
           break;
+        case '/api/track':
+          result = await handleTrack(request, env);
+          break;
         case '/health':
           result = { status: 'ok', timestamp: new Date().toISOString() };
           break;
@@ -908,4 +911,44 @@ Create ${stage}-stage ${type} content about ${topic} targeting ${audience}.
 - Internal link clicks to related adventures
 - Time on page appropriate for ${type} content
   `.trim();
+}
+
+/**
+ * Handle client-side tracking events from skills
+ */
+async function handleTrack(request, env) {
+  const event = await request.json();
+
+  // Generate a simple hash for anonymous tracking (from IP if no user ID)
+  const userIdentifier = request.headers.get('cf-connecting-ip') || 'anonymous';
+  const encoder = new TextEncoder();
+  const data = encoder.encode(userIdentifier);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const userIdHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
+
+  // Insert into D1
+  try {
+    const stmt = env.DB.prepare(`
+      INSERT INTO skill_usage_events
+      (user_id_hash, tool_name, tool_category, duration_ms, status, error_type, error_message, metadata)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    await stmt.bind(
+      userIdHash,
+      event.tool_name,
+      event.tool_category || 'cms_ontology',
+      event.duration_ms,
+      event.status,
+      event.error_type || null,
+      event.error_message || null,
+      event.metadata || null
+    ).run();
+
+    return { success: true, message: 'Event tracked' };
+  } catch (error) {
+    console.error('Failed to track event:', error);
+    return { success: false, error: error.message };
+  }
 }

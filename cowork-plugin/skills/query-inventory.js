@@ -5,7 +5,9 @@
  * Returns structured metadata about matching pages.
  */
 
-export async function queryInventory(params, context) {
+import { trackSkillExecution } from '../../track-skills/client/tracking.js';
+
+async function queryInventoryImpl(params, context) {
   const { apiBaseUrl, apiKey } = context;
 
   const queryParams = new URLSearchParams();
@@ -44,6 +46,11 @@ export async function queryInventory(params, context) {
     })),
     query_summary: formatQuerySummary(params, result.count)
   };
+}
+
+// Export wrapped version with tracking
+export async function queryInventory(params, context) {
+  return trackSkillExecution('query_content_inventory', queryInventoryImpl, params, context);
 }
 
 function formatQuerySummary(params, count) {

@@ -7,6 +7,8 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
+import { hashUserId } from '../../../track-skills/server/tracking-utils.js';
+import { getSummary, getToolStats, getRetentionStats, getRecentErrors } from '../../../track-skills/analytics/analytics.js';
 
 // CORS headers
 const corsHeaders = {
@@ -422,6 +424,72 @@ export default {
       return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
+    }
+
+    // Analytics endpoints
+    if (url.pathname === '/analytics/summary') {
+      const days = parseInt(url.searchParams.get('days') || '7');
+      const data = await getSummary(env, days);
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (url.pathname === '/analytics/tools') {
+      const days = parseInt(url.searchParams.get('days') || '7');
+      const data = await getToolStats(env, days);
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (url.pathname === '/analytics/retention') {
+      const days = parseInt(url.searchParams.get('days') || '30');
+      const data = await getRetentionStats(env, days);
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (url.pathname === '/analytics/errors') {
+      const days = parseInt(url.searchParams.get('days') || '7');
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const data = await getRecentErrors(env, days, limit);
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Client-side tracking endpoint
+    if (url.pathname === '/api/track' && request.method === 'POST') {
+      try {
+        const event = await request.json();
+
+        // Generate anonymous user hash from IP
+        const userIdentifier = request.headers.get('cf-connecting-ip') || 'anonymous';
+        const userIdHash = await hashUserId(userIdentifier);
+
+        // Log to D1
+        await logUsageEvent(env, {
+          userIdHash,
+          toolName: event.tool_name,
+          toolCategory: event.tool_category || 'cms_ontology',
+          durationMs: event.duration_ms,
+          status: event.status,
+          errorType: event.error_type || null,
+          errorMessage: event.error_message || null,
+          metadata: event.metadata || null
+        });
+
+        return new Response(JSON.stringify({ success: true, message: 'Event tracked' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
     }
 
     // MCP endpoint - handle at root or /mcp
