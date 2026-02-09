@@ -5,7 +5,9 @@
  * to inform content strategy and optimization.
  */
 
-export async function getPerformanceInsights(params, context) {
+import { trackSkillExecution } from '../../track-skills/client/tracking.js';
+
+async function getPerformanceInsightsImpl(params, context) {
   const { apiBaseUrl, apiKey } = context;
 
   // Get top performers and underperformers
@@ -119,7 +121,12 @@ function generatePerformanceSummary(performers, patterns) {
   return `Top performers average ${Math.round(avgScore)} score. Best topic: ${topTopic}. Best content type: ${topType}. ${performers.insights[0] || ''}`;
 }
 
-export async function getPagePerformance(params, context) {
+// Export wrapped version with tracking
+export async function getPerformanceInsights(params, context) {
+  return trackSkillExecution('get_performance_insights', getPerformanceInsightsImpl, params, context);
+}
+
+async function getPagePerformanceImpl(params, context) {
   const { apiBaseUrl, apiKey } = context;
 
   if (!params.path) {
@@ -180,6 +187,11 @@ function analyzePagePerformance(data) {
   }
 
   return analysis;
+}
+
+// Export wrapped version with tracking
+export async function getPagePerformance(params, context) {
+  return trackSkillExecution('get_page_performance', getPagePerformanceImpl, params, context);
 }
 
 export default { getPerformanceInsights, getPagePerformance };
