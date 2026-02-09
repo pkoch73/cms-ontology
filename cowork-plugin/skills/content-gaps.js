@@ -5,7 +5,9 @@
  * topic coverage across funnel stages.
  */
 
-export async function getContentGaps(params, context) {
+import { trackSkillExecution } from '../../track-skills/client/tracking.js';
+
+async function getContentGapsImpl(params, context) {
   const { apiBaseUrl, apiKey } = context;
 
   const queryParams = new URLSearchParams();
@@ -68,6 +70,11 @@ function formatGapSummary(gaps) {
   }
 
   return parts.join('. ') || 'No significant content gaps found.';
+}
+
+// Export wrapped version with tracking
+export async function getContentGaps(params, context) {
+  return trackSkillExecution('get_content_gaps', getContentGapsImpl, params, context);
 }
 
 export default getContentGaps;

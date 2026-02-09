@@ -5,7 +5,9 @@
  * Provides actionable guidance for content creation.
  */
 
-export async function generateContentBrief(params, context) {
+import { trackSkillExecution } from '../../track-skills/client/tracking.js';
+
+async function generateContentBriefImpl(params, context) {
   const { apiBaseUrl, apiKey } = context;
 
   if (!params.topic || !params.content_type) {
@@ -62,6 +64,11 @@ export async function generateContentBrief(params, context) {
       brief_text: brief.brief_text
     }
   };
+}
+
+// Export wrapped version with tracking
+export async function generateContentBrief(params, context) {
+  return trackSkillExecution('generate_content_brief', generateContentBriefImpl, params, context);
 }
 
 export default generateContentBrief;

@@ -5,7 +5,9 @@
  * Useful for internal linking and content clusters.
  */
 
-export async function getRelatedContent(params, context) {
+import { trackSkillExecution } from '../../track-skills/client/tracking.js';
+
+async function getRelatedContentImpl(params, context) {
   const { apiBaseUrl, apiKey } = context;
 
   if (!params.path) {
@@ -92,6 +94,11 @@ function generateLinkingSuggestions(data) {
   }
 
   return suggestions;
+}
+
+// Export wrapped version with tracking
+export async function getRelatedContent(params, context) {
+  return trackSkillExecution('get_related_content', getRelatedContentImpl, params, context);
 }
 
 export default getRelatedContent;

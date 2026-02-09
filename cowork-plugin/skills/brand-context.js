@@ -5,7 +5,9 @@
  * Provides information about brand voice, topics, audiences, and terminology.
  */
 
-export async function getBrandContext(params, context) {
+import { trackSkillExecution } from '../../track-skills/client/tracking.js';
+
+async function getBrandContextImpl(params, context) {
   const { apiBaseUrl, apiKey } = context;
 
   const aspect = params.aspect || 'all';
@@ -103,6 +105,11 @@ function formatContextSummary(context) {
   }
 
   return parts.join('. ');
+}
+
+// Export wrapped version with tracking
+export async function getBrandContext(params, context) {
+  return trackSkillExecution('get_brand_context', getBrandContextImpl, params, context);
 }
 
 export default getBrandContext;
