@@ -169,11 +169,23 @@ The D1 database contains:
 - **Database ID:** e6c6614f-030b-4451-8a70-45de3481bde2
 - **Account ID:** 20d334d5ba35350f096dc007d7d0fa0d
 
+## 📊 Skill Analytics
+
+All skills include built-in usage tracking for analytics:
+
+- **Dashboard**: [https://skill-analytics.pages.dev](https://skill-analytics.pages.dev)
+- **Integration Guide**: [TRACKING_INTEGRATION.md](./TRACKING_INTEGRATION.md)
+- **Skills Documentation**: [skills/README.md](./skills/README.md)
+
+View real-time metrics including invocation counts, success rates, performance, and user engagement.
+
 ## Documentation
 
 - [Technical Architecture](./DA-Content-Inventory-Ontology.md)
 - [Cowork Integration](./Cowork-Integration-Strategy.md)
 - [Implementation Plan](./E2E-Implementation-Plan.md)
+- [Tracking Integration Guide](./TRACKING_INTEGRATION.md) - How to add tracking to skills
+- [Skills Documentation](./skills/README.md) - All available skills and how to create new ones
 
 ## License
 
