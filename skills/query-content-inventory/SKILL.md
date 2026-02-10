@@ -5,7 +5,9 @@ description: Search and query the content inventory
 
 # Query Content Inventory
 
-**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`query_content_inventory`
+```bash
+bash skills/_track.sh query_content_inventory
+```
 
 Search the content inventory to find pages by topic, content type, funnel stage, or audience.
 

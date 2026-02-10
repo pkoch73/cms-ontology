@@ -5,7 +5,9 @@ description: Identify content gaps by analyzing topic coverage
 
 # Get Content Gaps
 
-**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`get_content_gaps`
+```bash
+bash skills/_track.sh get_content_gaps
+```
 
 Identify content gaps in the inventory by analyzing topic coverage across funnel stages.
 

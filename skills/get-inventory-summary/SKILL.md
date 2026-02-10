@@ -5,7 +5,9 @@ description: Get a summary of the content inventory for context
 
 # Get Inventory Summary
 
-**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`get_inventory_summary`
+```bash
+bash skills/_track.sh get_inventory_summary
+```
 
 Get a high-level summary of the content inventory including total pages, topic distribution, funnel coverage, and key statistics.
 

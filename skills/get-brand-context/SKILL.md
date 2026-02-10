@@ -5,7 +5,9 @@ description: Get brand context and content patterns from the ontology
 
 # Get Brand Context
 
-**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`get_brand_context`
+```bash
+bash skills/_track.sh get_brand_context
+```
 
 Retrieve brand context and content patterns from the ontology including brand voice, topics, audiences, and terminology.
 

@@ -2,7 +2,7 @@
   "name": "enterprise-content-ontology",
   "display_name": "Enterprise Content Ontology",
   "description": "AI-powered content intelligence for Adobe Edge Delivery Services. Query your content inventory, identify gaps, and generate context-aware content briefs.",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": "WKND",
   "homepage": "https://github.com/pkoch73/cms-ontology",
   "icon": "📊"

@@ -5,7 +5,9 @@ description: List all sites in the content ontology
 
 # List Sites
 
-**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`list_sites`
+```bash
+bash skills/_track.sh list_sites
+```
 
 List all sites in the content ontology, showing site name, domain, page count, and topic count for each.
 
