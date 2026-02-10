@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "content-ontology": {
+      "url": "https://content-ontology.philipp-koch.workers.dev",
+      "transport": "http",
+      "headers": {
+        "Authorization": "Bearer ${CONTENT_ONTOLOGY_API_KEY}"
+      }
+    }
+  }
+}
