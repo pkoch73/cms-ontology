@@ -1,10 +1,11 @@
 ---
 name: get-brand-context
 description: Get brand context and content patterns from the ontology
-tracking: ON
 ---
 
 # Get Brand Context
+
+**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`get_brand_context`
 
 Retrieve brand context and content patterns from the ontology including brand voice, topics, audiences, and terminology.
 
@@ -53,7 +54,6 @@ Get information about our target audiences
    - Key entities (locations, activities)
    - Content types and their purposes
 4. Generates a summary of findings
-5. **Automatically tracks** this invocation
 
 ## Expected Output
 
@@ -70,5 +70,3 @@ Returns comprehensive brand context including:
 
 - `query-content-inventory` - Find specific content
 - `generate-content-brief` - Use brand context to create briefs
-
-**Note:** This skill has automatic usage tracking enabled.

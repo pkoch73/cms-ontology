@@ -1,10 +1,11 @@
 ---
 name: get-page-performance
 description: Get detailed performance data for a specific page
-tracking: ON
 ---
 
 # Get Page Performance
+
+**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`get_page_performance`
 
 Get detailed performance data for a specific page including Core Web Vitals, engagement metrics, and optimization recommendations.
 

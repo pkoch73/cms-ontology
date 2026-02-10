@@ -1,10 +1,11 @@
 ---
 name: generate-content-brief
 description: Generate AI-powered content briefs using ontology context
-tracking: ON
 ---
 
 # Generate Content Brief
+
+**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`generate_content_brief`
 
 Create AI-powered content briefs based on ontology context, existing content patterns, and brand voice.
 

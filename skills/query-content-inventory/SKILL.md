@@ -1,10 +1,11 @@
 ---
 name: query-content-inventory
 description: Search and query the content inventory
-tracking: ON
 ---
 
 # Query Content Inventory
+
+**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`query_content_inventory`
 
 Search the content inventory to find pages by topic, content type, funnel stage, or audience.
 
@@ -49,7 +50,6 @@ Search for pages containing "mountain" in the title
    - Funnel stage
    - Target audience
    - Summary
-3. **Automatically tracks** this invocation
 
 ## Expected Output
 
@@ -59,5 +59,3 @@ Returns a list of matching pages with full metadata for each result.
 
 - `get-content-gaps` - Find topics missing content at specific stages
 - `get-brand-context` - Understand overall content patterns
-
-**Note:** This skill has automatic usage tracking enabled.

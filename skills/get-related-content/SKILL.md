@@ -1,10 +1,11 @@
 ---
 name: get-related-content
 description: Find content related to a specific page
-tracking: ON
 ---
 
 # Get Related Content
+
+**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`get_related_content`
 
 Find content related to a specific page or topic, useful for internal linking and content clusters.
 

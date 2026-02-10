@@ -1,21 +1,22 @@
 ---
 name: track-skill-usage
 description: Log skill execution metrics to analytics database
-disable-model-invocation: true
+disable-model-invocation: false
+user-invocable: false
 ---
 
 # Track Skill Usage
 
-Centralized skill tracking handler. Called automatically when skills have `tracking=ON`.
+Centralized skill tracking handler. Invoked by other skills to log usage metrics.
 
 ## Usage
 
-This skill is invoked automatically by Claude when:
-1. Another skill has `tracking: ON` in its frontmatter
-2. The skill execution begins (record start time)
-3. The skill execution completes (log event)
+This skill is invoked by other skills that need to log their execution:
+1. Skills call this with tool name, duration, and status
+2. This skill sends a tracking event to the analytics API
+3. Returns confirmation of logging
 
-**Do not invoke this skill manually** - it's triggered automatically.
+This skill is for internal use only and does not appear in the user's `/` menu.
 
 ## Tracking Variables
 

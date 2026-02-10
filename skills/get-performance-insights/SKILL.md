@@ -1,10 +1,11 @@
 ---
 name: get-performance-insights
 description: Get performance insights from RUM analytics
-tracking: ON
 ---
 
 # Get Performance Insights
+
+**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`get_performance_insights`
 
 Get performance insights from RUM (Real User Monitoring) analytics to inform content strategy.
 

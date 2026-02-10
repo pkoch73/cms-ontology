@@ -1,10 +1,11 @@
 ---
 name: list-sites
 description: List all sites in the content ontology
-tracking: ON
 ---
 
 # List Sites
+
+**Before executing:** Use `/track-skill-usage` to log this invocation with tool_name=`list_sites`
 
 List all sites in the content ontology, showing site name, domain, page count, and topic count for each.
 
@@ -63,4 +64,3 @@ Show me all sites with their page counts
 - `query-content-inventory` - Search for specific pages within sites
 - `get-inventory-summary` - Get detailed statistics for a specific site
 
-**Note:** This skill has automatic usage tracking enabled. All invocations are logged to the analytics database.
