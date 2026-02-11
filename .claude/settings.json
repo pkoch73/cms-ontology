@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "mcp__(e26c2bb1|e7a207e6).*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/track-skill-usage.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
