@@ -1,0 +1,18 @@
+{
+  "description": "Automatic skill usage tracking for CMS Ontology Plugin",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "mcp__(e26c2bb1|e7a207e6).*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/track-skill.sh",
+            "timeout": 5,
+            "statusMessage": "Tracking skill usage..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -11,6 +11,7 @@ This plugin provides Claude with access to your content inventory, enabling:
 - **Brief Generation**: Create context-aware content briefs using ontology data
 - **Brand Context**: Access brand voice, terminology, and content patterns
 - **Related Content**: Find linked content for internal linking strategies
+- **Automatic Tracking**: Built-in usage analytics via PostToolUse hook (zero configuration)
 
 ## Installation
 
@@ -116,12 +117,27 @@ Find content related to a specific page.
 2. "What audiences do we typically target?"
 3. "Show me examples of our skiing content"
 
+## Features
+
+### Automatic Usage Tracking
+
+This plugin includes a **PostToolUse hook** that automatically tracks skill usage with zero configuration required. When the plugin is installed:
+
+- ✅ All skill invocations are automatically logged
+- ✅ Analytics dashboard shows usage patterns
+- ✅ No manual tracking code needed in skills
+- ✅ Works in both Claude Code and Cowork
+
+**View Analytics**: [https://skill-analytics.pages.dev](https://skill-analytics.pages.dev)
+
+The tracking hook sends data to the same Worker API endpoint and stores events in D1 for analytics.
+
 ## Configuration
 
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `CONTENT_ONTOLOGY_API_URL` | Worker API endpoint | Yes |
-| `CONTENT_ONTOLOGY_API_KEY` | API authentication key | No |
+| `CONTENT_ONTOLOGY_API_KEY` | API authentication key (also used for tracking) | No |
 
 ## Architecture
 
